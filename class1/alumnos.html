@@ -1,0 +1,64 @@
+<html>
+<head>
+	<script type="text/javascript">
+	class Alumnos{
+		constructor(cb){
+			this.store = [];
+			this.cb =cb;
+		}
+		add(alumno={}){
+			this.store = [...this.store, Object.assign({}, {
+				name: 'NoName',
+				dni: '000000',
+				enabled: true
+			}, alumno)];
+			this.observe();
+		}
+
+		remove(index=-1){
+			this.store = this.store.filter( (a,i)=> i!=index);
+			this.observe();
+		}
+		observe(){
+			this.cb(this.store);
+		}
+
+		enabled(index){
+			this.store = this.store.map( (e, i)=>{
+				if(index==i) e.enabled = !e.enabled;
+				return e;
+			});
+			this.cb(this.store);
+		}
+	}
+
+
+
+	</script>
+</head>
+<body>
+	<div id="list"></div>
+
+	<script type="text/javascript">
+	var al = new Alumnos((store)=>{
+		var list = document.getElementById('list');
+		list.innerHTML='';
+		
+		store.forEach((e, i)=>{
+			var el = document.createElement('p');
+			list.appendChild(el);
+			el.innerHTML=` ${e.name} : ${e.dni}`;
+
+			el.onclick= function(){
+				console.log(' clicked: ', i);
+				al.enabled(i);
+			};
+			if(!e.enabled) el.style.color="#ff0000";
+		})
+	});
+
+	al.add({name:'cacho', dni: 213});
+	al.add({name:'Jose', dni: 233});
+	</script>
+</body>
+</html>
