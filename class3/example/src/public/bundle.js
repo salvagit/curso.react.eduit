@@ -89,7 +89,14 @@
 	  return Title;
 	}(_react2.default.Component);
 
-	function TodoItem(props) {}
+	function TodoItem(props) {
+	  console.log(props);
+	  return _react2.default.createElement(
+	    'li',
+	    null,
+	    props.todo.title
+	  );
+	}
 
 	var Todos = function (_React$Component2) {
 	  _inherits(Todos, _React$Component2);
@@ -103,16 +110,13 @@
 	  _createClass(Todos, [{
 	    key: 'render',
 	    value: function render() {
+	      var items = this.props.todos.map(function (t) {
+	        return _react2.default.createElement(TodoItem, { key: t.id, todo: t });
+	      });
 	      return _react2.default.createElement(
 	        'ul',
 	        null,
-	        this.props.todos.map(function (t) {
-	          return _react2.default.createElement(
-	            'li',
-	            { key: t.id },
-	            t.title
-	          );
-	        })
+	        items
 	      );
 	    }
 	  }]);

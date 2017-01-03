@@ -12,14 +12,20 @@ class Title extends React.Component {
 }
 
 
-function TodoItem(props){
+function TodoItem(props){  
+  return (
+    <li>{props.todo.title}</li>
+  )
 }
 
 class Todos extends React.Component{
   render(){
+    const items = this.props.todos.map(t=>(
+      <TodoItem key={t.id} todo={t} />
+    ))
     return (
       <ul>
-        {this.props.todos.map(t=> (<li key={t.id}>{t.title}</li>) )}
+          {items}
       </ul>
     );
   }
