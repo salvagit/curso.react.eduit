@@ -56,6 +56,8 @@
 
 	var _redux = __webpack_require__(178);
 
+	var _index = __webpack_require__(199);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -64,8 +66,32 @@
 
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-	var App = function (_React$Component) {
-	  _inherits(App, _React$Component);
+	var Title = function (_React$Component) {
+	  _inherits(Title, _React$Component);
+
+	  function Title() {
+	    _classCallCheck(this, Title);
+
+	    return _possibleConstructorReturn(this, (Title.__proto__ || Object.getPrototypeOf(Title)).apply(this, arguments));
+	  }
+
+	  _createClass(Title, [{
+	    key: 'render',
+	    value: function render() {
+	      console.log(this, this.props.value);
+	      return _react2.default.createElement(
+	        'h1',
+	        null,
+	        this.props.value
+	      );
+	    }
+	  }]);
+
+	  return Title;
+	}(_react2.default.Component);
+
+	var App = function (_React$Component2) {
+	  _inherits(App, _React$Component2);
 
 	  function App() {
 	    _classCallCheck(this, App);
@@ -76,11 +102,7 @@
 	  _createClass(App, [{
 	    key: 'render',
 	    value: function render() {
-	      return _react2.default.createElement(
-	        'h1',
-	        null,
-	        'Hola Mundo, somos react'
-	      );
+	      return _react2.default.createElement(Title, { value: 'hola a todos' });
 	    }
 	  }]);
 
@@ -22537,6 +22559,49 @@
 	    }, last.apply(undefined, arguments));
 	  };
 	}
+
+/***/ },
+/* 199 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	module.exports = {
+	  todo: __webpack_require__(200)
+	};
+
+/***/ },
+/* 200 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _redux = __webpack_require__(178);
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function todos() {
+	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+	  var action = arguments[1];
+
+	  switch (action.type) {
+	    case 'ADD_TODO':
+	      return [].concat(_toConsumableArray(state), [{
+	        title: action.title,
+	        status: false
+	      }]);
+	      break;
+
+	    case 'REMOVE_TODO':
+	      return [].concat(_toConsumableArray(state.slice(0, actionindex).concat(state.slice(index + 1))));
+
+	      break;
+	    default:
+	      return state;
+	  }
+	}
+
+	module.exports = (0, _redux.createStore)(todos);
 
 /***/ }
 /******/ ]);
