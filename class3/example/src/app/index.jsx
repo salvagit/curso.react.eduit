@@ -31,8 +31,8 @@ class TodoItem extends React.Component{
         this.state.todo,
         {state: !this.state.todo.status}));
 
+      }
 }
-
 class Todos extends React.Component{
   constructor(props){
     super(props);

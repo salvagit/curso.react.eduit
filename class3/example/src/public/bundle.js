@@ -115,9 +115,7 @@
 	  }, {
 	    key: 'alter',
 	    value: function alter() {
-	      this.setState({
-	        todo: this.state.todo
-	      });
+	      this.setState(Object.assing({}, this.state.todo, { state: !this.state.todo.status }));
 	    }
 	  }]);
 
