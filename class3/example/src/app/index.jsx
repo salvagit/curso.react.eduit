@@ -29,7 +29,7 @@ class TodoItem extends React.Component{
   alter(){
       this.setState(Object.assing({},
         this.state.todo,
-        {state: !this.state.todo.status});
+        {state: !this.state.todo.status}
   }
 }
 
