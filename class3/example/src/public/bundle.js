@@ -89,34 +89,72 @@
 	  return Title;
 	}(_react2.default.Component);
 
-	function TodoItem(props) {
-	  console.log(props);
-	  return _react2.default.createElement(
-	    'li',
-	    null,
-	    props.todo.title
-	  );
-	}
+	var TodoItem = function (_React$Component2) {
+	  _inherits(TodoItem, _React$Component2);
 
-	var Todos = function (_React$Component2) {
-	  _inherits(Todos, _React$Component2);
+	  function TodoItem(props) {
+	    _classCallCheck(this, TodoItem);
 
-	  function Todos() {
+	    var _this2 = _possibleConstructorReturn(this, (TodoItem.__proto__ || Object.getPrototypeOf(TodoItem)).call(this, props));
+
+	    _this2.state = {
+	      todo: props.todo
+	    };
+	    return _this2;
+	  }
+
+	  _createClass(TodoItem, [{
+	    key: 'render',
+	    value: function render() {
+	      return _react2.default.createElement(
+	        'li',
+	        null,
+	        this.state.todo.title
+	      );
+	    }
+	  }, {
+	    key: 'alter',
+	    value: function alter() {
+	      this.setState({
+	        todo: this.state.todo
+	      });
+	    }
+	  }]);
+
+	  return TodoItem;
+	}(_react2.default.Component);
+
+	var Todos = function (_React$Component3) {
+	  _inherits(Todos, _React$Component3);
+
+	  function Todos(props) {
 	    _classCallCheck(this, Todos);
 
-	    return _possibleConstructorReturn(this, (Todos.__proto__ || Object.getPrototypeOf(Todos)).apply(this, arguments));
+	    var _this3 = _possibleConstructorReturn(this, (Todos.__proto__ || Object.getPrototypeOf(Todos)).call(this, props));
+
+	    _this3.state = { todos: props.todos };
+	    return _this3;
 	  }
 
 	  _createClass(Todos, [{
 	    key: 'render',
 	    value: function render() {
-	      var items = this.props.todos.map(function (t) {
+	      var items = this.state.todos.map(function (t) {
 	        return _react2.default.createElement(TodoItem, { key: t.id, todo: t });
 	      });
 	      return _react2.default.createElement(
-	        'ul',
+	        'div',
 	        null,
-	        items
+	        _react2.default.createElement(
+	          'span',
+	          null,
+	          'List de tareas'
+	        ),
+	        _react2.default.createElement(
+	          'ul',
+	          null,
+	          items
+	        )
 	      );
 	    }
 	  }]);
@@ -124,8 +162,8 @@
 	  return Todos;
 	}(_react2.default.Component);
 
-	var App = function (_React$Component3) {
-	  _inherits(App, _React$Component3);
+	var App = function (_React$Component4) {
+	  _inherits(App, _React$Component4);
 
 	  function App() {
 	    _classCallCheck(this, App);
@@ -140,7 +178,9 @@
 	        'div',
 	        null,
 	        _react2.default.createElement(Title, { value: 'hola a todos' }),
-	        _react2.default.createElement(Todos, { todos: this.props.todos })
+	        this.props.list.map(function (todos) {
+	          return _react2.default.createElement(Todos, { todos: todos.getState() });
+	        })
 	      );
 	    }
 	  }]);
@@ -149,16 +189,16 @@
 	}(_react2.default.Component);
 
 	var appRender = function appRender() {
-	  return (0, _reactDom.render)(_react2.default.createElement(App, { todos: _index.todo.getState() }), document.getElementById('app'));
+	  return (0, _reactDom.render)(_react2.default.createElement(App, { list: _index.multipleTodos.getState() }), document.getElementById('app'));
 	};
 
-	_index.todo.subscribe(function () {
-	  return appRender();
+	_index.multipleTodos.subscribe(function () {
+	  appRender();
 	});
 
-	_index.todo.dispatch({ type: 'ADD_TODO', title: 'Task 1' });
-	_index.todo.dispatch({ type: 'ADD_TODO', title: 'Task 2' });
-	_index.todo.dispatch({ type: 'ADD_TODO', title: 'Task 3' });
+	_index.multipleTodos.dispatch({ type: 'ADD_LIST' });
+	_index.multipleTodos.dispatch({ type: 'ADD_LIST' });
+	_index.multipleTodos.dispatch({ type: 'ADD_LIST' });
 
 /***/ },
 /* 1 */
@@ -22612,7 +22652,8 @@
 	'use strict';
 
 	module.exports = {
-	  todo: __webpack_require__(200)
+	  factoryTodos: __webpack_require__(200),
+	  multipleTodos: __webpack_require__(201)
 	};
 
 /***/ },
@@ -22638,29 +22679,95 @@
 	        id: id++
 	      };
 	      break;
+
+	    case 'ALTER_TODO':
+	      if (state.id !== action.id) return state;
+	      return Object.assign({}, state, { status: !state.status });
+	      break;
+
+	    case 'REMOVE_TODO':
+	      return !(state.id === action.id);
+	      break;
 	    default:
 	      return state;
 	  }
 	}
-	function todos() {
+
+	function generateTodos() {
+	  var initState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+	  return function todos() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initState;
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	      case 'ADD_TODO':
+	        return [].concat(_toConsumableArray(state), [todo(null, action)]);
+	        break;
+
+	      case 'ALTER_TODO':
+	        return state.map(function (t) {
+	          return todo(t, action);
+	        });
+	        break;
+	      case 'REMOVE_TODO':
+	        return state.filter(function (t) {
+	          return todo(t, action);
+	        });
+	        break;
+	      default:
+	        return state;
+	    }
+	  };
+	}
+
+	module.exports = {
+	  factoryTodos: function factoryTodos(initState) {
+	    return (0, _redux.createStore)(generateTodos(initState));
+	  }
+	};
+
+/***/ },
+/* 201 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var _redux = __webpack_require__(178);
+
+	var _todo = __webpack_require__(200);
+
+	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+	function multipleTodos() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 	  var action = arguments[1];
 
 	  switch (action.type) {
-	    case 'ADD_TODO':
-	      return [].concat(_toConsumableArray(state), [todo(null, action)]);
+	    case 'ADD_LIST':
+	      return [].concat(_toConsumableArray(state), [(0, _todo.factoryTodos)()]);
 	      break;
 
-	    case 'REMOVE_TODO':
-	      return [].concat(_toConsumableArray(state.slice(0, actionindex).concat(state.slice(index + 1))));
+	    case 'ALTER_TODO':
+	      return state.map(function (todos, index) {
+	        if (index !== action.index) return todos;
+	        todos.dispatch({ action: 'ALTER_TODO', id: action.id });
+	        return (0, _todo.factoryTodos)(todos.getState());
+	      });
 
+	      return state;
+	      break;
+	    case 'REMOVE_TODO':
+	      return state.filter(function (t) {
+	        return todo(t, action);
+	      });
 	      break;
 	    default:
 	      return state;
 	  }
 	}
 
-	module.exports = (0, _redux.createStore)(todos);
+	module.exports = (0, _redux.createStore)(multipleTodos);
 
 /***/ }
 /******/ ]);

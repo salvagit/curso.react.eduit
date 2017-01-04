@@ -8,28 +8,41 @@ function todo(state={}, action){
       title: action.title,
       status: false,
       id: id++
-    }
+    };
     break;
-    default:
-    return state;
-  }
-}
-function todos(state=[], action){
-  switch(action.type){
-    case 'ADD_TODO':
-      return [...state, todo(null, action)];
+
+    case 'ALTER_TODO':
+      if(state.id !== action.id ) return state;
+      return Object.assign({}, state, {status: !state.status});
     break;
 
     case 'REMOVE_TODO':
-    return [...state.slice(0, actionindex)
-      .concat(state.slice(index+1))
-    ];
-
+      return !(state.id === action.id);
     break;
     default:
-    return state;
+      return state;
   }
 }
 
+function generateTodos(initState=[]){
+  return function todos(state=initState, action){
+    switch(action.type){
+      case 'ADD_TODO':
+        return [...state, todo(null, action)];
+      break;
 
-module.exports = createStore(todos);
+      case 'ALTER_TODO':
+        return state.map(t=> todo(t, action));
+      break;
+      case 'REMOVE_TODO':
+        return state.filter(t=> todo(t, action));
+      break;
+      default:
+      return state;
+    }
+  }
+}
+
+module.exports ={
+  factoryTodos: (initState)=> createStore(generateTodos(initState))
+}

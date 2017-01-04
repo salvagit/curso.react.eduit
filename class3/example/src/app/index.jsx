@@ -1,7 +1,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import { createStore } from 'redux';
-import {todo} from './reducers/index.jsx';
+import { multipleTodos } from './reducers/index.jsx';
 
 class Title extends React.Component {
   render(){
@@ -12,21 +12,44 @@ class Title extends React.Component {
 }
 
 
-function TodoItem(props){  
-  return (
-    <li>{props.todo.title}</li>
-  )
+class TodoItem extends React.Component{
+  constructor(props){
+    super(props);
+    this.state ={
+      todo: props.todo
+    };
+  }
+
+  render(){
+    return (
+      <li>{this.state.todo.title}</li>
+    )
+  }
+
+  alter(){
+      this.setState(Object.assing({},
+        this.state.todo,
+        {state: !this.state.todo.status});
+  }
 }
 
 class Todos extends React.Component{
+  constructor(props){
+    super(props);
+    this.state = { todos: props.todos};
+  }
+
   render(){
-    const items = this.props.todos.map(t=>(
+    const items = this.state.todos.map(t=>(
       <TodoItem key={t.id} todo={t} />
     ))
     return (
-      <ul>
-          {items}
-      </ul>
+      <div>
+        <span>List de tareas</span>
+        <ul>
+            {items}
+        </ul>
+      </div>
     );
   }
 }
@@ -36,18 +59,23 @@ class App extends React.Component {
     return (
       <div>
         <Title value="hola a todos" />
-        <Todos todos={this.props.todos} />
+        {this.props.list.map(todos=> (
+            <Todos todos={todos.getState()} />
+        ))}
+
       </div>
     );
   }
 }
 
-const appRender = ()=>render(<App todos={todo.getState()} />,
+const appRender = ()=>render(<App list={multipleTodos.getState()} />,
   document.getElementById('app')
 );
 
-todo.subscribe(()=> appRender());
+multipleTodos.subscribe(()=> {
+  appRender();
+});
 
-todo.dispatch({type:'ADD_TODO', title: 'Task 1'});
-todo.dispatch({type:'ADD_TODO', title: 'Task 2'});
-todo.dispatch({type:'ADD_TODO', title: 'Task 3'});
+multipleTodos.dispatch({type:'ADD_LIST'});
+multipleTodos.dispatch({type:'ADD_LIST'});
+multipleTodos.dispatch({type:'ADD_LIST'});

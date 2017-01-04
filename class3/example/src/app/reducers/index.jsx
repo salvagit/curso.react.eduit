@@ -1,3 +1,4 @@
 module.exports = {
-  todo: require('./todo.jsx')
+  factoryTodos: require('./todo.jsx'),
+  multipleTodos: require('./multipletodos.jsx')
 }
