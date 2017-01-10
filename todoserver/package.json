@@ -1,0 +1,16 @@
+{
+  "name": "todoserver",
+  "version": "1.0.0",
+  "description": "TODO Server, for class5 ",
+  "main": "app.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "Cesar Casas <cesarcasas@bsdsolutions.com.ar> (https://ar.linkedin.com/in/cesarcasas)",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mongojs": "^2.4.0"
+  }
+}
