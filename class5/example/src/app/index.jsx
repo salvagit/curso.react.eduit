@@ -2,9 +2,10 @@
 import React from 'react';
 import {render} from 'react-dom';
 import { createStore } from 'redux';
-import {default as request} from './lib/request.jsx';
+import {default as Request} from './lib/request.jsx';
 
 const APIHost = 'http://localhost:8000';
+const request = new Request();
 
 function todo(state={}, action){
   switch (action.type) {
@@ -39,31 +40,32 @@ function todo(state={}, action){
   }
 }
 
-function todos(state=[], action){
-  switch (action.type) {
-    case 'ADD_TODO':
-    return [...state, todo(null, action)];
-    break;
-    case 'REMOVE_TODO':
-    return [state.slice(0, action.index).concat(index+1)];
-    break;
-    case 'TOGGLE_TODO':
-    return state.map( t=> todo(t, action));
-    break;
-    default:
-    return state;
+function todosFactory(initialState=[]){
+  return function todos(state=initialState, action){
+    switch (action.type) {
+      case 'ADD_TODO':
+      return [...state, todo(null, action)];
+      break;
+      case 'REMOVE_TODO':
+      return [state.slice(0, action.index).concat(index+1)];
+      break;
+      case 'TOGGLE_TODO':
+      return state.map( t=> todo(t, action));
+      break;
+      default:
+      return state;
+    }
   }
+
 }
+let todoStore = createStore(todosFactory([]));
 
 
-let todoStore = createStore(todos);
-
-fetch(APIHost+'/todo')
-.then(response=>{
-  return response.json();
-})
+request.get(APIHost+'/todo')
 .then(data=>{
-  data.todos.forEach(t=>todoStore.dispatch(Object.assign({}, t, {type:'ADD_TODO'})));
+  todoStore = createStore(todosFactory(data.todos));
+  todoStore.subscribe(()=> appRender())
+
 });
 
 
@@ -169,5 +171,3 @@ document.getElementById('app')
 );
 
 appRender();
-
-todoStore.subscribe(()=> appRender())

@@ -71,6 +71,7 @@
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 	var APIHost = 'http://localhost:8000';
+	var request = new _request2.default();
 
 	function todo() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -104,34 +105,36 @@
 	  }
 	}
 
-	function todos() {
-	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
-	  var action = arguments[1];
+	function todosFactory() {
+	  var initialState = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
 
-	  switch (action.type) {
-	    case 'ADD_TODO':
-	      return [].concat(_toConsumableArray(state), [todo(null, action)]);
-	      break;
-	    case 'REMOVE_TODO':
-	      return [state.slice(0, action.index).concat(index + 1)];
-	      break;
-	    case 'TOGGLE_TODO':
-	      return state.map(function (t) {
-	        return todo(t, action);
-	      });
-	      break;
-	    default:
-	      return state;
-	  }
+	  return function todos() {
+	    var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : initialState;
+	    var action = arguments[1];
+
+	    switch (action.type) {
+	      case 'ADD_TODO':
+	        return [].concat(_toConsumableArray(state), [todo(null, action)]);
+	        break;
+	      case 'REMOVE_TODO':
+	        return [state.slice(0, action.index).concat(index + 1)];
+	        break;
+	      case 'TOGGLE_TODO':
+	        return state.map(function (t) {
+	          return todo(t, action);
+	        });
+	        break;
+	      default:
+	        return state;
+	    }
+	  };
 	}
+	var todoStore = (0, _redux.createStore)(todosFactory([]));
 
-	var todoStore = (0, _redux.createStore)(todos);
-
-	fetch(APIHost + '/todo').then(function (response) {
-	  return response.json();
-	}).then(function (data) {
-	  data.todos.forEach(function (t) {
-	    return todoStore.dispatch(Object.assign({}, t, { type: 'ADD_TODO' }));
+	request.get(APIHost + '/todo').then(function (data) {
+	  todoStore = (0, _redux.createStore)(todosFactory(data.todos));
+	  todoStore.subscribe(function () {
+	    return appRender();
 	  });
 	});
 
@@ -286,10 +289,6 @@
 	};
 
 	appRender();
-
-	todoStore.subscribe(function () {
-	  return appRender();
-	});
 
 /***/ },
 /* 1 */
@@ -22768,14 +22767,12 @@
 	var Request = function () {
 		function Request() {
 			_classCallCheck(this, Request);
-
-			this.r = fetch;
 		}
 
 		_createClass(Request, [{
 			key: 'get',
 			value: function get(path) {
-				return this.r(path).then(function (response) {
+				return fetch(path).then(function (response) {
 					return response.json();
 				});
 			}
@@ -22784,7 +22781,7 @@
 			value: function put(path) {
 				var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-				return this.r(path, {
+				return fetch(path, {
 					method: 'PUT',
 					headers: {
 						'Content-Type': 'application/json'
