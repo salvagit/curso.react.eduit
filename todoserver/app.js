@@ -34,6 +34,24 @@ app.get('/todo', (req, res)=>{
   db.todo.find({}, {}, (err, docs)=> err? res.json({error: err, todos:null}) : res.json({error: null, todos: docs}) );
 });
 
+app.patch('/todo', (req, res)=>{
+  let schema ={
+    id: req.body.id,
+    title: req.body.title,
+    complete: req.body.complete
+  };
+
+  db.todo.update({id: schema.id}, {$set: schema}, (err, doc)=>{
+    err ? res.json({error: err, data: null}) : res.json({error: null, data: doc});
+  });
+});
+
+app.delete('/todo', (req, res)=>{
+  db.todo.remove({id: req.query.id},{multi: true}, (err, doc)=>{
+    err ? res.json({error: err, data: null}) : res.json({error: null, data: doc});
+  });
+});
+
 server.listen(PORT, err=>{
   console.log('listen on *:',PORT);
 });

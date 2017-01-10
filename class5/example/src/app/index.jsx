@@ -2,6 +2,7 @@
 import React from 'react';
 import {render} from 'react-dom';
 import { createStore } from 'redux';
+import {default as request} from './lib/request.jsx';
 
 const APIHost = 'http://localhost:8000';
 
