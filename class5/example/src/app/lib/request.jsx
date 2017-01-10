@@ -1,15 +1,14 @@
 class Request{
 	constructor(){
-		this.r = fetch;
 	}
 
 	get(path){
-		return this.r(path)
-		.then(response=> response.json())		
+		return fetch(path)
+		.then(response=> response.json())
 	}
 
 	put(path, data={}){
-		return this.r(path, {
+		return fetch(path, {
 			method: 'PUT',
 			headers:{
 				'Content-Type': 'application/json'
