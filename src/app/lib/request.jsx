@@ -4,7 +4,7 @@ class Request{
 
 	get(path){
 		return fetch(path)
-		.then(response=> response.json());
+		.then(response => response.json() );
 	}
 
 	put(path, data={}){

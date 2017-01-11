@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "mocha",
-    "start": "node api/app.js & node app.js"
+    "start": "node api/app.js & node app.js",
+    "watch": "npm start & ./node_modules/webpack/bin/webpack.js --watch"
   },
   "author": "Cesar Casas <cesarcasas@bsdsolutions.com.ar> (https://ar.linkedin.com/in/cesarcasas)",
   "license": "ISC",

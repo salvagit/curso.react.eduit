@@ -24,8 +24,9 @@ app.put('/todo', (req, res)=>{
     complete: req.body.complete
   };
 
-  db.todo.insert(schema, (err, docs)=>{
-    err ? res.json({error: err, data: null}) : res.json({error: null, data: docs});
+  db.todo.insert(schema, (err, docs) => {
+    // err ? res.json({error: err, data: null}) : res.json({error: null, data: docs});
+    return res.json({error: err, data: docs});
   });
 
 });

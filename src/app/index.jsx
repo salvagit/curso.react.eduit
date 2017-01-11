@@ -1,34 +1,38 @@
 
 import React from 'react';
 import {render} from 'react-dom';
-import { createStore } from 'redux';
+import {createStore} from 'redux';
 import {default as Request} from './lib/request.jsx';
 
-const APIHost = 'http://localhost:5000';
+const APIHost = 'http://localhost:8000';
 const request = new Request();
 let todoStore = null;
-let id =0 ;
 
-function todo(state={}, action=null){
+var id = 0;
+
+function todo(state={}, action=null) {
   switch (action.type) {
     case 'ADD_TODO':
-
-    let obj= {
+console.log(action, id);
+    let obj = {
       title: action.title,
       complete: false,
-      id: action.id,
+      id: id,
       error: false
     };
 
     request.put(APIHost+'/todo', obj)
     .catch( err => {
       if(err)todoStore.dispatch({type:'ERROR_TODO', err: err});
-    });
+    })
+    .then(data => console.log(data.json()))
+    .then(data => console.log(data));
 
     return obj;
 
     case 'ERROR_TODO':
       return console.error(action.err);
+
     case 'TOGGLE_TODO':
       if(state.id !== action.id) return state;
       else {
@@ -48,17 +52,16 @@ function todosFactory(initialState=[]){
   return function todos(state=initialState, action=null){
     switch (action.type) {
       case 'ADD_TODO':
-      return [...state, todo(null, action)];
+        return [...state, todo(null, action)];
       case 'REMOVE_TODO':
-      return [state.slice(0, action.index).concat(index+1)];
+        return [state.slice(0, action.index).concat(index+1)];
       case 'TOGGLE_TODO':
-      return state.map( t=> todo(t, action));
+        return state.map( t=> todo(t, action));
       default:
-      return state;
+        return state;
     }
   };
 }
-
 
 class FormTodo extends React.Component{
   constructor(props){
@@ -83,21 +86,18 @@ class FormTodo extends React.Component{
     this.setState({title:''});
   }
 
-
-  render(){
+  render() {
     return (
       <form onSubmit={this.handleSubmit}>
         <label>
           Title: <input type="text" id='title' value={this.state.title} onChange={this.changeField} />
-      </label>
-      <input type="submit" value="Add" />
-    </form>
-  )
+        </label>
+        <input type="submit" value="Add" />
+      </form>
+    )
+  }
+
 }
-
-
-}
-
 
 class TodoItem extends React.Component{
   constructor(props){
@@ -122,8 +122,7 @@ class TodoItem extends React.Component{
   }
 }
 
-class TodosList extends React.Component{
-
+class TodosList extends React.Component {
   render(){
     let list = '';
     return (
@@ -136,7 +135,6 @@ class TodosList extends React.Component{
   }
 }
 
-
 function Title(props){
   return (
     <h1>{props.value}</h1>
@@ -144,11 +142,10 @@ function Title(props){
 }
 
 class App extends React.Component {
-
   render() {
     return (
       <div>
-        <Title value="relojes magicos"/>
+        <Title value="relojes blandos"/>
         <FormTodo />
         <TodosList todos={this.props.todos} />
       </div>
@@ -156,17 +153,18 @@ class App extends React.Component {
   }
 }
 
-
-
-
 request.get(APIHost+'/todo')
-.then(data=>{
+.then( data => {
   todoStore = createStore(todosFactory(data.todos));
-  id = data.todos.length;
-  const appRender = ()=>render(<App todos={todoStore.getState()}/>,
-  document.getElementById('app')
+
+  const appRender = () => render(
+    <App todos={todoStore.getState()}/>,
+    document.getElementById('app')
   );
 
-  todoStore.subscribe(()=> appRender())
+  id = data.todos.length;
+console.log('on subs: ' + id, data);
+  todoStore.subscribe(() => appRender() );
+
   appRender();
 });
