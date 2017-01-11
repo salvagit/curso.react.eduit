@@ -8,12 +8,12 @@ const APIHost = 'http://localhost:8000';
 const request = new Request();
 let todoStore = null;
 
-var id = 0;
+let id = 0;
 
 function todo(state={}, action=null) {
+
   switch (action.type) {
     case 'ADD_TODO':
-console.log(action, id);
     let obj = {
       title: action.title,
       complete: false,
@@ -52,6 +52,8 @@ function todosFactory(initialState=[]){
   return function todos(state=initialState, action=null){
     switch (action.type) {
       case 'ADD_TODO':
+      // @todo es correcto que incremete desde este reducer ?
+        id = state.length;
         return [...state, todo(null, action)];
       case 'REMOVE_TODO':
         return [state.slice(0, action.index).concat(index+1)];
@@ -152,18 +154,16 @@ class App extends React.Component {
     );
   }
 }
-
+// get todos.
 request.get(APIHost+'/todo')
 .then( data => {
   todoStore = createStore(todosFactory(data.todos));
 
-  const appRender = () => render(
+  let appRender = () => render(
     <App todos={todoStore.getState()}/>,
     document.getElementById('app')
   );
 
-  id = data.todos.length;
-console.log('on subs: ' + id, data);
   todoStore.subscribe(() => appRender() );
 
   appRender();

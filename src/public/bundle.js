@@ -80,9 +80,9 @@
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	  var action = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
 
+
 	  switch (action.type) {
 	    case 'ADD_TODO':
-	      console.log(action, id);
 	      var obj = {
 	        title: action.title,
 	        complete: false,
@@ -123,6 +123,8 @@
 
 	    switch (action.type) {
 	      case 'ADD_TODO':
+	        // @todo es correcto que incremete desde este reducer ?
+	        id = state.length;
 	        return [].concat(_toConsumableArray(state), [todo(null, action)]);
 	      case 'REMOVE_TODO':
 	        return [state.slice(0, action.index).concat(index + 1)];
@@ -280,6 +282,8 @@
 
 	  return App;
 	}(_react2.default.Component);
+	// get todos.
+
 
 	request.get(APIHost + '/todo').then(function (data) {
 	  todoStore = (0, _redux.createStore)(todosFactory(data.todos));
@@ -288,8 +292,6 @@
 	    return (0, _reactDom.render)(_react2.default.createElement(App, { todos: todoStore.getState() }), document.getElementById('app'));
 	  };
 
-	  id = data.todos.length;
-	  console.log('on subs: ' + id, data);
 	  todoStore.subscribe(function () {
 	    return appRender();
 	  });
