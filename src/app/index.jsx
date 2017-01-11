@@ -4,14 +4,15 @@ import {render} from 'react-dom';
 import { createStore } from 'redux';
 import {default as Request} from './lib/request.jsx';
 
-const APIHost = 'http://localhost:8000';
+const APIHost = 'http://localhost:5000';
 const request = new Request();
 let todoStore = null;
 let id =0 ;
 
-function todo(state={}, action){
+function todo(state={}, action=null){
   switch (action.type) {
     case 'ADD_TODO':
+
     let obj= {
       title: action.title,
       complete: false,
@@ -20,53 +21,42 @@ function todo(state={}, action){
     };
 
     request.put(APIHost+'/todo', obj)
-    .catch(err=>{
+    .catch( err => {
+      if(err)todoStore.dispatch({type:'ERROR_TODO', err: err});
+    });
 
-    })
     return obj;
-    break;
 
     case 'ERROR_TODO':
-    if(state.id !== action.id) return state;
-    else return Object.assign({},
-      state,
-      {error: !state.error}
-    );
-
-    break;
+      return console.error(action.err);
     case 'TOGGLE_TODO':
-    if(state.id !== action.id) return state;
-    else {
-      let nobj =  Object.assign({},
-        state,
-        {complete: !state.complete}
-      );
-      request.patch(APIHost+'/todo', nobj);
-      return nobj;
-    }
-
+      if(state.id !== action.id) return state;
+      else {
+        let nobj =  Object.assign({},
+          state,
+          {complete: !state.complete}
+        );
+        request.patch(APIHost+'/todo', nobj);
+        return nobj;
+      }
+    break;
     default:
-
   }
 }
 
 function todosFactory(initialState=[]){
-  return function todos(state=initialState, action){
+  return function todos(state=initialState, action=null){
     switch (action.type) {
       case 'ADD_TODO':
       return [...state, todo(null, action)];
-      break;
       case 'REMOVE_TODO':
       return [state.slice(0, action.index).concat(index+1)];
-      break;
       case 'TOGGLE_TODO':
       return state.map( t=> todo(t, action));
-      break;
       default:
       return state;
     }
-  }
-
+  };
 }
 
 

@@ -4,7 +4,8 @@
   "description": "React Example, class 3, course of react.",
   "main": "app.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "start": "node api/app.js & node app.js"
   },
   "author": "Cesar Casas <cesarcasas@bsdsolutions.com.ar> (https://ar.linkedin.com/in/cesarcasas)",
   "license": "ISC",

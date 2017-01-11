@@ -4,7 +4,7 @@ class Request{
 
 	get(path){
 		return fetch(path)
-		.then(response=> response.json())
+		.then(response=> response.json());
 	}
 
 	put(path, data={}){
@@ -14,7 +14,7 @@ class Request{
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(data)
-		})
+		});
 	}
 
 	patch(path, data={}){
@@ -24,7 +24,7 @@ class Request{
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(data)
-		})
+		});
 	}
 
 }
