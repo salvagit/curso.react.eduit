@@ -6,6 +6,8 @@ import {default as Request} from './lib/request.jsx';
 
 const APIHost = 'http://localhost:8000';
 const request = new Request();
+let todoStore = null;
+let id =0 ;
 
 function todo(state={}, action){
   switch (action.type) {
@@ -13,27 +15,35 @@ function todo(state={}, action){
     let obj= {
       title: action.title,
       complete: false,
-      id: action.id
+      id: action.id,
+      error: false
     };
 
-    fetch(APIHost+'/todo', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(obj)
-    });//end fetch
+    request.put(APIHost+'/todo', obj)
+    .catch(err=>{
 
-
+    })
     return obj;
     break;
 
-    case 'TOGGLE_TODO':
+    case 'ERROR_TODO':
     if(state.id !== action.id) return state;
     else return Object.assign({},
       state,
-      {complete: !state.complete}
+      {error: !state.error}
     );
+
+    break;
+    case 'TOGGLE_TODO':
+    if(state.id !== action.id) return state;
+    else {
+      let nobj =  Object.assign({},
+        state,
+        {complete: !state.complete}
+      );
+      request.patch(APIHost+'/todo', nobj);
+      return nobj;
+    }
 
     default:
 
@@ -58,15 +68,6 @@ function todosFactory(initialState=[]){
   }
 
 }
-let todoStore = createStore(todosFactory([]));
-
-
-request.get(APIHost+'/todo')
-.then(data=>{
-  todoStore = createStore(todosFactory(data.todos));
-  todoStore.subscribe(()=> appRender())
-
-});
 
 
 class FormTodo extends React.Component{
@@ -74,7 +75,6 @@ class FormTodo extends React.Component{
     super(props);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.changeField = this.changeField.bind(this);
-    this.id = 0;
     this.state = {
       title: ''
     };
@@ -89,7 +89,7 @@ class FormTodo extends React.Component{
   handleSubmit(evt){
     evt.preventDefault();
     if(this.state.title.trim()==='') return;
-    todoStore.dispatch({type: 'ADD_TODO', title: this.state.title, id: this.id++});
+    todoStore.dispatch({type: 'ADD_TODO', title: this.state.title});
     this.setState({title:''});
   }
 
@@ -160,14 +160,23 @@ class App extends React.Component {
       <div>
         <Title value="relojes magicos"/>
         <FormTodo />
-        <TodosList todos={todoStore.getState()} />
+        <TodosList todos={this.props.todos} />
       </div>
     );
   }
 }
 
-const appRender = ()=>render(<App />,
-document.getElementById('app')
-);
 
-appRender();
+
+
+request.get(APIHost+'/todo')
+.then(data=>{
+  todoStore = createStore(todosFactory(data.todos));
+  id = data.todos.length;
+  const appRender = ()=>render(<App todos={todoStore.getState()}/>,
+  document.getElementById('app')
+  );
+
+  todoStore.subscribe(()=> appRender())
+  appRender();
+});

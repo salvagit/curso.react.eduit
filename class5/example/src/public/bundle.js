@@ -72,6 +72,8 @@
 
 	var APIHost = 'http://localhost:8000';
 	var request = new _request2.default();
+	var todoStore = null;
+	var id = 0;
 
 	function todo() {
 	  var state = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
@@ -82,23 +84,24 @@
 	      var obj = {
 	        title: action.title,
 	        complete: false,
-	        id: action.id
+	        id: action.id,
+	        error: false
 	      };
 
-	      fetch(APIHost + '/todo', {
-	        method: 'PUT',
-	        headers: {
-	          'Content-Type': 'application/json'
-	        },
-	        body: JSON.stringify(obj)
-	      }); //end fetch
-
-
+	      request.put(APIHost + '/todo', obj).catch(function (err) {});
 	      return obj;
 	      break;
 
+	    case 'ERROR_TODO':
+	      if (state.id !== action.id) return state;else return Object.assign({}, state, { error: !state.error });
+
+	      break;
 	    case 'TOGGLE_TODO':
-	      if (state.id !== action.id) return state;else return Object.assign({}, state, { complete: !state.complete });
+	      if (state.id !== action.id) return state;else {
+	        var nobj = Object.assign({}, state, { complete: !state.complete });
+	        request.patch(APIHost + '/todo', nobj);
+	        return nobj;
+	      }
 
 	    default:
 
@@ -129,14 +132,6 @@
 	    }
 	  };
 	}
-	var todoStore = (0, _redux.createStore)(todosFactory([]));
-
-	request.get(APIHost + '/todo').then(function (data) {
-	  todoStore = (0, _redux.createStore)(todosFactory(data.todos));
-	  todoStore.subscribe(function () {
-	    return appRender();
-	  });
-	});
 
 	var FormTodo = function (_React$Component) {
 	  _inherits(FormTodo, _React$Component);
@@ -148,7 +143,6 @@
 
 	    _this.handleSubmit = _this.handleSubmit.bind(_this);
 	    _this.changeField = _this.changeField.bind(_this);
-	    _this.id = 0;
 	    _this.state = {
 	      title: ''
 	    };
@@ -167,7 +161,7 @@
 	    value: function handleSubmit(evt) {
 	      evt.preventDefault();
 	      if (this.state.title.trim() === '') return;
-	      todoStore.dispatch({ type: 'ADD_TODO', title: this.state.title, id: this.id++ });
+	      todoStore.dispatch({ type: 'ADD_TODO', title: this.state.title });
 	      this.setState({ title: '' });
 	    }
 	  }, {
@@ -276,7 +270,7 @@
 	        null,
 	        _react2.default.createElement(Title, { value: 'relojes magicos' }),
 	        _react2.default.createElement(FormTodo, null),
-	        _react2.default.createElement(TodosList, { todos: todoStore.getState() })
+	        _react2.default.createElement(TodosList, { todos: this.props.todos })
 	      );
 	    }
 	  }]);
@@ -284,11 +278,18 @@
 	  return App;
 	}(_react2.default.Component);
 
-	var appRender = function appRender() {
-	  return (0, _reactDom.render)(_react2.default.createElement(App, null), document.getElementById('app'));
-	};
+	request.get(APIHost + '/todo').then(function (data) {
+	  todoStore = (0, _redux.createStore)(todosFactory(data.todos));
+	  id = data.todos.length;
+	  var appRender = function appRender() {
+	    return (0, _reactDom.render)(_react2.default.createElement(App, { todos: todoStore.getState() }), document.getElementById('app'));
+	  };
 
-	appRender();
+	  todoStore.subscribe(function () {
+	    return appRender();
+	  });
+	  appRender();
+	});
 
 /***/ },
 /* 1 */
@@ -22783,6 +22784,19 @@
 
 				return fetch(path, {
 					method: 'PUT',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify(data)
+				});
+			}
+		}, {
+			key: 'patch',
+			value: function patch(path) {
+				var data = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+				return fetch(path, {
+					method: 'PATCH',
 					headers: {
 						'Content-Type': 'application/json'
 					},
